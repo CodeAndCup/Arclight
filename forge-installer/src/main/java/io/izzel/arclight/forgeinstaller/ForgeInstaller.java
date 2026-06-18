@@ -410,8 +410,15 @@ public class ForgeInstaller {
             Object ucp = Unsafe.getObject(loader, offset);
             if (ucp == null) {
                 var cl = Class.forName("jdk.internal.loader.URLClassPath");
-                var handle = Unsafe.lookup().findConstructor(cl, MethodType.methodType(void.class, URL[].class, AccessControlContext.class));
-                ucp = handle.invoke(new URL[]{}, (AccessControlContext) null);
+                try {
+                    // JDK 17-21: URLClassPath(URL[], AccessControlContext)
+                    var handle = Unsafe.lookup().findConstructor(cl, MethodType.methodType(void.class, URL[].class, AccessControlContext.class));
+                    ucp = handle.invoke(new URL[]{}, (AccessControlContext) null);
+                } catch (NoSuchMethodException e) {
+                    // JDK 24+ (JEP 486) dropped the AccessControlContext parameter
+                    var handle = Unsafe.lookup().findConstructor(cl, MethodType.methodType(void.class, URL[].class));
+                    ucp = handle.invoke((Object) new URL[]{});
+                }
                 Unsafe.putObjectVolatile(loader, offset, ucp);
             }
             Method method = ucp.getClass().getDeclaredMethod("addURL", URL.class);
