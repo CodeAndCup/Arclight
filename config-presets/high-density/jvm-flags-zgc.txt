@@ -1,0 +1,20 @@
+# High-density JVM flags — Java 21+ (recommended: Java 25), Generational ZGC.
+# Benchmark-backed: under Minecraft's chunk-loading allocation churn, ZGC stayed smooth
+# while G1 hit a multi-second Full-GC freeze (see docs/high-player-tuning.md).
+#
+# Replace <HEAP> with a SINGLE value (Xms == Xmx). Size it so the server runs comfortably
+# BELOW the limit at peak — running the heap near-full costs TPS. Stay under ~31G to keep
+# compressed oops. Example sizes: ~80 players -> 8G, ~120 -> 12G, ~150 -> 16G (+ headroom for mods).
+#
+# Usage:
+#   java @config-presets/high-density/jvm-flags-zgc.txt -jar arclight-forge-<...>.jar nogui
+#   (or paste the flags into your start script; remove comment lines)
+
+-Xms<HEAP>
+-Xmx<HEAP>
+-XX:+UseZGC
+-XX:+AlwaysPreTouch
+-XX:+PerfDisableSharedMem
+-XX:+UseStringDeduplication
+# Linux only — large pages reduce TLB pressure (drop on Windows/macOS):
+# -XX:+UseTransparentHugePages

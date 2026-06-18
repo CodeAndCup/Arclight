@@ -51,6 +51,9 @@ The rest of this doc maximises **per-instance** capacity, so each shard holds as
 > while ZGC stayed smooth** — a strong reason to run Java 25 + ZGC. Also: giving ZGC headroom
 > matters — going 6 GB → 8 GB raised p5 TPS from ~13 to ~15 (don't run the heap near-full).
 
+> 📋 Ready-to-merge values for everything below are in
+> **[../config-presets/high-density/](../config-presets/high-density/)** (config blocks + JVM flag files).
+
 ## 3. Arclight config (`arclight.conf`)
 ```hocon
 optimization {
