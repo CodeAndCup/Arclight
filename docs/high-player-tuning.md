@@ -39,7 +39,17 @@ The rest of this doc maximises **per-instance** capacity, so each shard holds as
   Java 25 work on `feat/java25-runtime`).
 - Pre-touch + fixed heap: `-Xms = -Xmx`, `-XX:+AlwaysPreTouch`.
 - If you prefer G1 (smaller heaps), use Aikar's flags (well-known tuned G1 set).
-- Verify with the benchmark: `JVM_EXTRA="-XX:+UseZGC -XX:+ZGenerational" HEAP=8G ./benchmark/run-benchmark.sh`.
+- Verify with the benchmark: `JVM_EXTRA="-XX:+UseZGC" HEAP=8G ./benchmark/run-benchmark.sh`.
+
+> **Measured (weak test box: i7-1265U ULV, same heavy load — ~1960 ticking chunks + ~1700 entities):**
+> | 8 GB heap | avg TPS | p5 TPS | min TPS |
+> |---|---|---|---|
+> | **ZGC** | **19.5** | **15.0** | 11.3 |
+> | G1 | 18.1 | 10.4 | **0.8** (a Full GC froze the server) |
+>
+> Under Minecraft's chunk-loading allocation churn, **G1 hit a multi-second Full-GC freeze
+> while ZGC stayed smooth** — a strong reason to run Java 25 + ZGC. Also: giving ZGC headroom
+> matters — going 6 GB → 8 GB raised p5 TPS from ~13 to ~15 (don't run the heap near-full).
 
 ## 3. Arclight config (`arclight.conf`)
 ```hocon
