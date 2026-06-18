@@ -47,6 +47,7 @@ public class BenchPlugin extends JavaPlugin {
     private final List<Double> tps = new ArrayList<>();
     private final Deque<long[]> forceLoadQueue = new ArrayDeque<>();
     private long setupStart;
+    private int forceLoadedCount = 0;
     private boolean measuring = false;
 
     private int cfgWarmup, cfgDuration, cfgPregen, cfgPlayers, cfgViewDist, cfgSpread, cfgEntitiesPerSec, cfgEntityCap;
@@ -107,11 +108,13 @@ public class BenchPlugin extends JavaPlugin {
             for (int i = 0; i < 32 && !forceLoadQueue.isEmpty(); i++) {
                 long[] c = forceLoadQueue.poll();
                 world.addPluginChunkTicket((int) c[0], (int) c[1], this);
+                forceLoadedCount++;
             }
             if (forceLoadQueue.isEmpty()) {
                 long ms = (System.nanoTime() - setupStart) / 1_000_000;
-                getLogger().info(String.format("BENCH-SETUP forceLoadedChunks=%d ms=%d", world.getPluginChunkTickets().size(), ms));
+                getLogger().info(String.format("BENCH-SETUP forceLoadedChunks=%d ms=%d", forceLoadedCount, ms));
                 windowStart = System.currentTimeMillis(); // reset measurement window after setup
+                tickCount = 0;
             }
             return;
         }
@@ -122,7 +125,9 @@ public class BenchPlugin extends JavaPlugin {
         if (elapsed < 1000) return;
         if (!measuring) { measuring = true; getLogger().info("BENCH-MEASURE-BEGIN"); }
         second++;
-        double t = tickCount * 1000.0 / elapsed;
+        // The server never ticks faster than 20 TPS; clamp to avoid catch-up windows
+        // (right after a heavy setup phase) reporting an impossible >20.
+        double t = Math.min(20.0, tickCount * 1000.0 / elapsed);
         tickCount = 0;
         windowStart = now;
 

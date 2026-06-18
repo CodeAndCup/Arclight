@@ -63,10 +63,11 @@ BENCH_ARGS="-Dbench.players=150 -Dbench.viewDist=4 -Dbench.duration=90 -Dbench.e
 
 ## 4. Compare two JDKs / GC settings
 Run twice with different `BENCH_JDK` / `JVM_EXTRA` and compare the summaries. Example
-Generational ZGC on Java 25 (sub-millisecond GC pauses):
+Generational ZGC on Java 25 (sub-millisecond GC pauses — generational is the default on
+Java 24+, so `-XX:+UseZGC` alone; on Java 21 add `-XX:+ZGenerational`):
 ```bash
 BENCH_JDK=~/.jdks/corretto-25.0.2 LABEL=zgc \
-  JVM_EXTRA="-XX:+UseZGC -XX:+ZGenerational" HEAP=8G \
+  JVM_EXTRA="-XX:+UseZGC" HEAP=8G \
   ./benchmark/run-benchmark.sh
 ```
 

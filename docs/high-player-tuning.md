@@ -33,9 +33,10 @@ The rest of this doc maximises **per-instance** capacity, so each shard holds as
 ## 2. JVM & GC — the Java 25 payoff
 - Size the heap to the workload (~10–16 GB for a busy ~150-player shard). **Stay under ~31 GB**
   so compressed oops stay on.
-- **Generational ZGC (Java 25):** `-XX:+UseZGC -XX:+ZGenerational` → **sub-millisecond GC
-  pauses** even with large heaps, i.e. no GC lag spikes for players. This is the main runtime
-  reason to run Arclight on Java 25 (see the Java 25 work on `feat/java25-runtime`).
+- **Generational ZGC (Java 25):** `-XX:+UseZGC` → **sub-millisecond GC pauses** even with large
+  heaps, i.e. no GC lag spikes for players. Generational mode is the default on Java 24+ (on Java
+  21 add `-XX:+ZGenerational`). This is the main runtime reason to run Arclight on Java 25 (see the
+  Java 25 work on `feat/java25-runtime`).
 - Pre-touch + fixed heap: `-Xms = -Xmx`, `-XX:+AlwaysPreTouch`.
 - If you prefer G1 (smaller heaps), use Aikar's flags (well-known tuned G1 set).
 - Verify with the benchmark: `JVM_EXTRA="-XX:+UseZGC -XX:+ZGenerational" HEAP=8G ./benchmark/run-benchmark.sh`.

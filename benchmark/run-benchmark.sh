@@ -42,12 +42,15 @@ echo "eula=true" > "$RUN_DIR/eula.txt"
 
 # fresh world so every run generates identically from the same seed
 rm -rf "$RUN_DIR"/world "$RUN_DIR"/world_nether "$RUN_DIR"/world_the_end "$RUN_DIR"/crash-reports 2>/dev/null || true
-GC_LOG="$RUN_DIR/gc-$LABEL.log"; rm -f "$GC_LOG"
+# Use a RELATIVE gc log filename in -Xlog: the JVM runs with cwd=RUN_DIR, and a path
+# embedded in -Xlog is NOT path-converted by Git Bash/MSYS (an absolute /c/... would fail).
+GC_FILE="gc-$LABEL.log"
+GC_LOG="$RUN_DIR/$GC_FILE"; rm -f "$GC_LOG"
 LOG="$RUN_DIR/bench-$LABEL.log"
 
 echo ">> Benchmark [$LABEL]  heap=$HEAP  extra='$JVM_EXTRA'  bench='$BENCH_ARGS'"
 ( cd "$RUN_DIR" && "$BENCH_JDK/bin/java" -Xms"$HEAP" -Xmx"$HEAP" \
-    "-Xlog:gc:file=$GC_LOG:time,uptime" $JVM_EXTRA $BENCH_ARGS \
+    "-Xlog:gc:file=$GC_FILE:time,uptime" $JVM_EXTRA $BENCH_ARGS \
     -jar "$ARCLIGHT_JAR" nogui ) > "$LOG" 2>&1 || true
 
 echo "--- results [$LABEL] ---"
