@@ -6,3 +6,9 @@ build/
 /.settings/
 .idea
 *.log
+
+# Java 25 migration: local test run dirs and IDE module files
+run_j17_test/
+run_j25_test/
+run_prod/
+*.iml

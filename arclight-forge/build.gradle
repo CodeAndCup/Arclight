@@ -80,7 +80,9 @@ dependencies {
     }
     embed 'io.izzel.arclight:mixin-tools:1.0.1'
     embed "io.izzel:tools:$toolsVersion"
-    embed "io.izzel.arclight:arclight-api:$apiVersion"
+    // Java 25: patched arclight-api (Unsafe routed to jdk.internal.misc.Unsafe, StackWalker
+    // caller-class instead of SecurityManager). See ~/.arclight-proxy/arclight-api-fork.
+    embed files("libs/arclight-api-${apiVersion}-j25.jar")
     embed 'commons-lang:commons-lang:2.6@jar'
     embed(project(':i18n-config')) {
         transitive = false
